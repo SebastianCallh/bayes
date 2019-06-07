@@ -1,0 +1,28 @@
+* Ideas
+  This sections contains ideas for topics which would be interesting
+  to flesh out.
+
+** Bayesian inference
+   The core inference engine. Infering parameters using Bayes theorem,
+   computing the prior/posterior predictive distributions, showing the
+   relation between these when using conjugate priors.
+
+** Model selection
+   Look at model selection from a Bayesian perspective.
+
+** Credible intervals
+   Computing it for arbitrary
+   distributions. [[http://www.sumsar.net/blog/2014/10/probable-points-and-credible-intervals-part-one/][This link]] might be useful, otherwise search for it
+   in the Bayesian learning course slides.
+
+** Bayesian Bandit
+   Really neat proof of concept for a reinforcement learning using
+   Bayesian inference.
+
+** A Kaggle competition
+   There should be at least one Kaggle competition which is applicable
+   for Bayesian modeling. This could be a chance to prototype with
+   PyMC3, and implement something that works with conjugate priors.
+
+** Decision theory
+   How to make optimal decisions under uncertainty? Super interesting stuff.
