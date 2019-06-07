@@ -1,0 +1,8 @@
+body {
+    padding: 50px;
+}
+
+
+div.figure img {
+    max-width: 100%;
+}
