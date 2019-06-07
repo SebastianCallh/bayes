@@ -3,10 +3,10 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2019-06-07 Fri 23:21 -->
+<!-- 2019-06-07 Fri 23:50 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>&lrm;</title>
+<title>Probability Distributions</title>
 <meta name="generator" content="Org mode" />
 <style type="text/css">
  <!--/*--><![CDATA[/*><!--*/
@@ -264,45 +264,46 @@ for the JavaScript code in this tag.
 </head>
 <body>
 <div id="content">
+<h1 class="title">Probability Distributions</h1>
 <div id="table-of-contents">
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#orga5d454f">1. Priors</a></li>
-<li><a href="#org408b604">2. Continuous</a>
+<li><a href="#org72b54bf">1. Priors</a></li>
+<li><a href="#org31e5be5">2. Continuous</a>
 <ul>
-<li><a href="#org5b9003b">2.1. Uniform</a></li>
-<li><a href="#orgfc8eee3">2.2. Beta</a></li>
-<li><a href="#orga7a0fce">2.3. Exponential</a></li>
-<li><a href="#orgd2f5575">2.4. Gamma</a></li>
-<li><a href="#orge2cb8b8">2.5. Normal</a></li>
+<li><a href="#org801404c">2.1. Uniform</a></li>
+<li><a href="#org470ef86">2.2. Beta</a></li>
+<li><a href="#orgea6dcf7">2.3. Exponential</a></li>
+<li><a href="#org5ee8e49">2.4. Gamma</a></li>
+<li><a href="#orgbda0dfc">2.5. Normal</a></li>
 </ul>
 </li>
-<li><a href="#org5f07043">3. Discrete</a>
+<li><a href="#orgb0e5451">3. Discrete</a>
 <ul>
-<li><a href="#orgde63e2d">3.1. Bernoulli</a></li>
-<li><a href="#org82a0f26">3.2. Binomial</a></li>
-<li><a href="#org84acd0d">3.3. Multinoulli</a></li>
-<li><a href="#orgecd79f5">3.4. Multinomial</a></li>
-<li><a href="#org1d68bce">3.5. Poisson</a></li>
-<li><a href="#org0d427ef">3.6. Poisson Process</a></li>
-<li><a href="#orgf6f5630">3.7. Geometric</a></li>
+<li><a href="#org83a3c64">3.1. Bernoulli</a></li>
+<li><a href="#org720f061">3.2. Binomial</a></li>
+<li><a href="#orgfef2dc1">3.3. Multinoulli</a></li>
+<li><a href="#orgd94f449">3.4. Multinomial</a></li>
+<li><a href="#orga801214">3.5. Poisson</a></li>
+<li><a href="#org10de76b">3.6. Poisson Process</a></li>
+<li><a href="#orgfd82b76">3.7. Geometric</a></li>
 </ul>
 </li>
-<li><a href="#org9986f23">4. Misc</a>
+<li><a href="#org5da0ba5">4. Misc</a>
 <ul>
-<li><a href="#org9723a98">4.1. Wishart</a></li>
-<li><a href="#orgd9a2fa6">4.2. Von-Mises</a></li>
-<li><a href="#orgbb95ecf">4.3. Gaussian Process</a></li>
+<li><a href="#orgaab8ef1">4.1. Wishart</a></li>
+<li><a href="#orga730ae5">4.2. Von-Mises</a></li>
+<li><a href="#orgea5499b">4.3. Gaussian Process</a></li>
 </ul>
 </li>
-<li><a href="#org78b23a6">5. Conjugate Priors</a></li>
+<li><a href="#org0910a0e">5. Conjugate Priors</a></li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-orga5d454f" class="outline-2">
-<h2 id="orga5d454f"><span class="section-number-2">1</span> Priors</h2>
+<div id="outline-container-org72b54bf" class="outline-2">
+<h2 id="org72b54bf"><span class="section-number-2">1</span> Priors</h2>
 <div class="outline-text-2" id="text-1">
 <p>
 This page contains notes on various priors, their conjugacy, example plots, and some
@@ -311,36 +312,40 @@ useful interpretations.
 </div>
 </div>
 
-<div id="outline-container-org408b604" class="outline-2">
-<h2 id="org408b604"><span class="section-number-2">2</span> Continuous</h2>
+<div id="outline-container-org31e5be5" class="outline-2">
+<h2 id="org31e5be5"><span class="section-number-2">2</span> Continuous</h2>
 <div class="outline-text-2" id="text-2">
+<p>
+This section covers the most common continuous distributions.
+</p>
 </div>
-<div id="outline-container-org5b9003b" class="outline-3">
-<h3 id="org5b9003b"><span class="section-number-3">2.1</span> Uniform</h3>
+
+<div id="outline-container-org801404c" class="outline-3">
+<h3 id="org801404c"><span class="section-number-3">2.1</span> Uniform</h3>
 <div class="outline-text-3" id="text-2-1">
 <p>
-The uniform distribution, denoted \(X \sim U(a, b)\), has a PDF
+   The uniform distribution, denoted \(X \sim U(a, b)\), has a PDF
+\[
+p(x &vert; a, b) =
 </p>
-\begin{equation}
-p(x \vert a, b) =
 \begin{cases} \frac{1}{b - a} & X \in [b, a] \\ 0 & \text{otherwise} \\,
 \end{cases}
-\end{equation}
 <p>
+\]
 which limits it&rsquo;s usefulness. This is because it is usually not sensible to place 0 probability mass over regions. Some reading related to that statement: <a href="https://en.wikipedia.org/wiki/Black_swan_theory">Black swan theory.</a>
 It&rsquo;s maximum likelihood estimator is \(\hat{\theta} = \max_i x_i\), intuitively explained by the fact that all data must be within the region of support.
 </p>
 
 
 <div class="figure">
-<p><img src="./obipy-resources/5gK3HS.png" alt="5gK3HS.png" />
+<p><img src="./obipy-resources/0hQDp9.png" alt="0hQDp9.png" />
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgfc8eee3" class="outline-3">
-<h3 id="orgfc8eee3"><span class="section-number-3">2.2</span> Beta</h3>
+<div id="outline-container-org470ef86" class="outline-3">
+<h3 id="org470ef86"><span class="section-number-3">2.2</span> Beta</h3>
 <div class="outline-text-3" id="text-2-2">
 <p>
 The Beta distribution generalizes the Uniform distribution \(U(0, 1) \sim Beta(1, 1)\) and is denoted \(X \sim Beta(a, b)\). It consequently has support [0, 1] and is useful for modeling ratios, proportions and binary probabilities. The name comes from the use of the Beta function \( B(\alpha, \beta) = \frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha + \beta)}\)in its PDF \(p(x \vert \alpha, \beta) = \frac{x^{\alpha - 1}(1 - x)^{\beta-1}}{B(\alpha, \beta)}\). It&rsquo;s likelihood function is consequently given by
@@ -351,30 +356,30 @@ The Beta distribution generalizes the Uniform distribution \(U(0, 1) \sim Beta(1
 = \frac{1}{B(\alpha, \beta)} \prod_{i=1}^{n} x_i^{\alpha - 1}(1 - x_i)^{\beta-1},
 \end{split}
 <p>
-which in log scale gives
+and the log likelihood is then
 </p>
 
 <p>
-\[ \log \mathcal{L}(\alpha, \beta \vert x_{1:n}) = \sum_{i=1}^{n} \left[ (\alpha - 1) \log(x_i) + (\beta-1) \log(1 - x_i) \right] - n \log B(\alpha, \beta) \]
+\[ \log \mathcal{L}(\alpha, \beta \vert x_{1:n}) = \sum_{i=1}^{n} \left[ (\alpha - 1) \log(x_i) + (\beta-1) \log(1 - x_i) \right] - n \log B(\alpha, \beta). \]
 </p>
 
 <p>
-It is the conjugate prior of the <a href="#org5832f38">Binomial distribution</a>.
+The Beta distribution is a conjugate prior to the <a href="#orgfc7b2da">Binomial distribution</a>.
 </p>
 
 
 <div class="figure">
-<p><img src="./obipy-resources/xFFFHr.png" alt="xFFFHr.png" />
+<p><img src="./obipy-resources/LJ15KY.png" alt="LJ15KY.png" />
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orga7a0fce" class="outline-3">
-<h3 id="orga7a0fce"><span class="section-number-3">2.3</span> Exponential</h3>
+<div id="outline-container-orgea6dcf7" class="outline-3">
+<h3 id="orgea6dcf7"><span class="section-number-3">2.3</span> Exponential</h3>
 <div class="outline-text-3" id="text-2-3">
 <p>
-   <a id="orga4f7026"></a>
+   <a id="orgaff933c"></a>
    The Exponential distribution support the positive reals, and models
    the time between events in a Poisson process. It has the PDF \(p(x
    \vert \lambda) = \lambda e^{-\lambda x} \) and is <i>memorylessness</i>;
@@ -392,17 +397,17 @@ The log likelihood is \( \log p(\lambda \vert x_{1:n}) = n \log \lambda - n \lam
 
 
 <div class="figure">
-<p><img src="./obipy-resources/YJnxyl.png" alt="YJnxyl.png" />
+<p><img src="./obipy-resources/ZSU8hg.png" alt="ZSU8hg.png" />
 </p>
 </div>
 </div>
 </div>
 
-<div id="outline-container-orgd2f5575" class="outline-3">
-<h3 id="orgd2f5575"><span class="section-number-3">2.4</span> Gamma</h3>
+<div id="outline-container-org5ee8e49" class="outline-3">
+<h3 id="org5ee8e49"><span class="section-number-3">2.4</span> Gamma</h3>
 <div class="outline-text-3" id="text-2-4">
 <p>
-The Gamma distribution generalises the <a href="#orga4f7026">Exponential distribution</a>
+The Gamma distribution generalises the <a href="#orgaff933c">Exponential distribution</a>
 \(Exp(\lambda) \sim Gamma(1, \frac{1}{\lambda})\) and is a
 conjugate prior for it. Consequently, it only has support for the
 positive reals, just as the Exponential distribution. It&rsquo;s PDF is
@@ -433,8 +438,8 @@ and the log likelihood
 </div>
 </div>
 
-<div id="outline-container-orge2cb8b8" class="outline-3">
-<h3 id="orge2cb8b8"><span class="section-number-3">2.5</span> Normal</h3>
+<div id="outline-container-orgbda0dfc" class="outline-3">
+<h3 id="orgbda0dfc"><span class="section-number-3">2.5</span> Normal</h3>
 <div class="outline-text-3" id="text-2-5">
 <p>
 The Normal, or Gaussian, distribution is one of the most commonly 
@@ -446,7 +451,7 @@ of different continuous data.
 
 
 <div class="figure">
-<p><img src="./obipy-resources/nw5C2f.png" alt="nw5C2f.png" />
+<p><img src="./obipy-resources/2agW10.png" alt="2agW10.png" />
 </p>
 </div>
 
@@ -457,8 +462,8 @@ very useful property of the univariate Normal distribution is that the \(95\%\)
 credible interval is given by \(\mu \pm 2\sigma\). However, it is very
 common to use a multivarite Normal distribution to model data with
 \(k > 1\)dimensions. In those cases the distributions is denoted \( x
-   \sim \mathcal{N}(\mathbf{\mu}, \mathbf{\Sigma}) \) where \(\mu \) is an
-\(k \times 1\)-dimensional vector and \(\Sigma\) is an \(k \times k\)
+   \sim \mathcal{N}(\mathbf{\mu}, \mathbf{\Sigma}) \) where \(\mu \) is a
+\(k \times 1\)-dimensional vector and \(\Sigma\) is a \(k \times k\)
 positive semi-definite covariance matrix.
 The PDF is given by 
 \[ 
@@ -501,69 +506,76 @@ conjugate prior for another Normal distribution with unknown mean.
 </p>
 
 
-
 <div class="figure">
-<p><img src="./obipy-resources/MuEiVc.png" alt="MuEiVc.png" />
+<p><img src="./obipy-resources/bvR18L.png" alt="bvR18L.png" />
 </p>
 </div>
 </div>
 </div>
 </div>
 
-<div id="outline-container-org5f07043" class="outline-2">
-<h2 id="org5f07043"><span class="section-number-2">3</span> Discrete</h2>
+<div id="outline-container-orgb0e5451" class="outline-2">
+<h2 id="orgb0e5451"><span class="section-number-2">3</span> Discrete</h2>
 <div class="outline-text-2" id="text-3">
+<p>
+This section covers the most common discrete distributions.
+</p>
 </div>
-<div id="outline-container-orgde63e2d" class="outline-3">
-<h3 id="orgde63e2d"><span class="section-number-3">3.1</span> Bernoulli</h3>
+<div id="outline-container-org83a3c64" class="outline-3">
+<h3 id="org83a3c64"><span class="section-number-3">3.1</span> Bernoulli</h3>
 </div>
-<div id="outline-container-org82a0f26" class="outline-3">
-<h3 id="org82a0f26"><span class="section-number-3">3.2</span> Binomial</h3>
+<div id="outline-container-org720f061" class="outline-3">
+<h3 id="org720f061"><span class="section-number-3">3.2</span> Binomial</h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
-<a id="org5832f38"></a>
+<a id="orgfc7b2da"></a>
 </p>
 </div>
 </div>
 
-<div id="outline-container-org84acd0d" class="outline-3">
-<h3 id="org84acd0d"><span class="section-number-3">3.3</span> Multinoulli</h3>
+<div id="outline-container-orgfef2dc1" class="outline-3">
+<h3 id="orgfef2dc1"><span class="section-number-3">3.3</span> Multinoulli</h3>
 </div>
-<div id="outline-container-orgecd79f5" class="outline-3">
-<h3 id="orgecd79f5"><span class="section-number-3">3.4</span> Multinomial</h3>
+<div id="outline-container-orgd94f449" class="outline-3">
+<h3 id="orgd94f449"><span class="section-number-3">3.4</span> Multinomial</h3>
 </div>
-<div id="outline-container-org1d68bce" class="outline-3">
-<h3 id="org1d68bce"><span class="section-number-3">3.5</span> Poisson</h3>
+<div id="outline-container-orga801214" class="outline-3">
+<h3 id="orga801214"><span class="section-number-3">3.5</span> Poisson</h3>
 </div>
-<div id="outline-container-org0d427ef" class="outline-3">
-<h3 id="org0d427ef"><span class="section-number-3">3.6</span> Poisson Process</h3>
+<div id="outline-container-org10de76b" class="outline-3">
+<h3 id="org10de76b"><span class="section-number-3">3.6</span> Poisson Process</h3>
 </div>
-<div id="outline-container-orgf6f5630" class="outline-3">
-<h3 id="orgf6f5630"><span class="section-number-3">3.7</span> Geometric</h3>
+<div id="outline-container-orgfd82b76" class="outline-3">
+<h3 id="orgfd82b76"><span class="section-number-3">3.7</span> Geometric</h3>
 </div>
 </div>
 
-<div id="outline-container-org9986f23" class="outline-2">
-<h2 id="org9986f23"><span class="section-number-2">4</span> Misc</h2>
+<div id="outline-container-org5da0ba5" class="outline-2">
+<h2 id="org5da0ba5"><span class="section-number-2">4</span> Misc</h2>
 <div class="outline-text-2" id="text-4">
+<p>
+There are distributions which do not naturally fall into the
+categories of continuous or discrete observations, so they have
+their own section.
+</p>
 </div>
-<div id="outline-container-org9723a98" class="outline-3">
-<h3 id="org9723a98"><span class="section-number-3">4.1</span> Wishart</h3>
+<div id="outline-container-orgaab8ef1" class="outline-3">
+<h3 id="orgaab8ef1"><span class="section-number-3">4.1</span> Wishart</h3>
 </div>
-<div id="outline-container-orgd9a2fa6" class="outline-3">
-<h3 id="orgd9a2fa6"><span class="section-number-3">4.2</span> Von-Mises</h3>
+<div id="outline-container-orga730ae5" class="outline-3">
+<h3 id="orga730ae5"><span class="section-number-3">4.2</span> Von-Mises</h3>
 </div>
-<div id="outline-container-orgbb95ecf" class="outline-3">
-<h3 id="orgbb95ecf"><span class="section-number-3">4.3</span> Gaussian Process</h3>
+<div id="outline-container-orgea5499b" class="outline-3">
+<h3 id="orgea5499b"><span class="section-number-3">4.3</span> Gaussian Process</h3>
 </div>
 </div>
 
-<div id="outline-container-org78b23a6" class="outline-2">
-<h2 id="org78b23a6"><span class="section-number-2">5</span> Conjugate Priors</h2>
+<div id="outline-container-org0910a0e" class="outline-2">
+<h2 id="org0910a0e"><span class="section-number-2">5</span> Conjugate Priors</h2>
 </div>
 </div>
 <div id="postamble" class="status">
-<p class="date">Created: 2019-06-07 Fri 23:21</p>
+<p class="date">Created: 2019-06-07 Fri 23:50</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
