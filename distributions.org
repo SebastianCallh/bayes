@@ -1,0 +1,311 @@
+#+TITLE: Probability Distributions
+#+BEGIN_SRC bash :dir ~/.venv/ :results drawer :output hide :exports none
+  pwd
+  virtualenv -p python3 bayes
+#+END_SRC
+
+#+BEGIN_SRC elisp :results silent :output none :exports none
+  (pyvenv-activate "~/.venv/bayes")
+#+END_SRC
+
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="style.css" />
+#+LATEX_HEADER: \usepackage{asmath}
+
+* Priors
+This page contains notes on various priors, their conjugacy, example plots, and some
+useful interpretations.
+
+* Continuous
+  This section covers the most common continuous distributions.
+
+** Uniform
+   The uniform distribution, denoted \(x \sim \mathcal{U}(a, b)\), has a PDF
+\[
+p(x \vert a, b) =
+\begin{cases} \frac{1}{b - a} & x \in [b, a] \\ 0 & \text{otherwise}, \\
+\end{cases}
+\]
+which limits it's usefulness. This is because it is usually not sensible to place 0 probability mass over regions. Some reading related to that statement: [[https://en.wikipedia.org/wiki/Black_swan_theory][Black swan theory.]]
+Considering \( \mathcal{U}(0, \theta) \), the likelihood function is given by 
+\[
+\mathcal{L}(\theta \vert x_{1:n}) = \prod_{i=1}^{n} \left( \frac{1}{\theta} \right) = 
+\frac{1}{\theta^{n}},
+\]
+and the log likelihood is 
+\[
+\log \mathcal{L}(\theta \vert x_{1:n}) = \log \frac{1}{\theta^{n}} = -
+n \log{\theta}
+\]
+
+
+   #+NAME: plot_uniform
+   #+BEGIN_SRC ipython :exports results :results drawer :session s
+     import numpy as np
+     import matplotlib.pyplot as plt
+     from scipy.stats import uniform
+     from util import get_axis, colors
+     plt.style.use('seaborn')
+     A = -7, -1, 0
+     B = 10, 2, 5
+     ax = get_axis('Uniform')
+     for a, b, col in zip(A, B, colors):
+	 x = np.linspace(a, b, 1000)
+	 y = uniform.pdf(x, loc=a, scale=b-a)
+	 ax.plot(x, y, color=col, label=f'$a={a}, b={b}$')
+	 ax.fill_between(x, y, 0, color=col, alpha=.15)
+     ax.set_ylim(0, .5)
+     ax.set_xlim(-15, 15) 
+     ax.legend()
+     print(ax)
+   #+END_SRC
+
+** Beta
+   The Beta distribution generalizes the Uniform distribution \(U(0, 1) \sim Beta(1, 1)\) and is denoted \(X \sim Beta(a, b)\). It consequently has support [0, 1] and is useful for modeling ratios, proportions and binary probabilities. The name comes from the use of the Beta function \( B(\alpha, \beta) = \frac{\Gamma(\alpha)\Gamma(\beta)}{\Gamma(\alpha + \beta)}\)in its PDF \(p(x \vert \alpha, \beta) = \frac{x^{\alpha - 1}(1 - x)^{\beta-1}}{B(\alpha, \beta)}\). It's likelihood function is consequently given by
+\begin{split}
+\mathcal{L}(\alpha, \beta \vert x_{1:n}) & = 
+\prod_{i=1}^{n}\frac{x_i^{\alpha - 1}(1 - x_i)^{\beta-1}}{B(\alpha, \beta)}
+= \frac{1}{B(\alpha, \beta)} \prod_{i=1}^{n} x_i^{\alpha - 1}(1 - x_i)^{\beta-1},
+\end{split}
+and the log likelihood is then
+
+\[ \log \mathcal{L}(\alpha, \beta \vert x_{1:n}) = \sum_{i=1}^{n} \left[ (\alpha - 1) \log(x_i) + (\beta-1) \log(1 - x_i) \right] - n \log B(\alpha, \beta). \]
+
+The Beta distribution is a conjugate prior to the [[binomial][Binomial distribution]].
+
+   #+NAME: plot_beta
+   #+BEGIN_SRC ipython :exports results :results drawer  :session s
+     import numpy as np
+     import matplotlib.pyplot as plt
+     from scipy.stats import beta
+     plt.style.use('seaborn')
+     A = [.1, 1, 5, 10]
+     B = [.1, 1, 8, 6]
+     x = np.linspace(0, 1, 1000)
+     ax = get_axis(name='Beta')
+     for a, b, col in zip(A, B, colors):
+	 y = beta.pdf(x, a, b)
+	 ax.plot(x, y, color=col, label=f'$a={a}, b={b}$')
+	 ax.fill_between(x, y, 0, color=col, alpha=.15)
+
+     ax.set_xlim(0, 1)
+     ax.set_ylim(0, 5)
+     ax.legend()
+     print(ax)
+   #+END_SRC
+
+** Exponential
+   <<exp>>
+   The Exponential distribution support the positive reals, and models
+   the time between events in a Poisson process. It has the PDF \(p(x
+   \vert \lambda) = \lambda e^{-\lambda x} \) and is /memorylessness/;
+   more formally it satisfies \( p(T > s + t \vert T > s) = p(T > t), \forall
+   s, v > 0 \). The likelihood function is given by  
+   \[ 
+   \mathcal{L}(\lambda \vert x_{1:n}) 
+   = \prod_{i=1}^{n} \lambda \exp \left( -\lambda x_i \right) 
+   = \lambda^n \prod_{i=1}^{n} \exp \left(\lambda x_i \right) 
+   = \lambda^n \exp\ \left( -n \lambda \sum_{i=1}^{n} x_i \right) 
+   \]
+The log likelihood is \( \log p(\lambda \vert x_{1:n}) = n \log \lambda - n \lambda \sum_{i=1}^{n} x_i \)
+
+
+   #+NAME: plot_exponential
+   #+BEGIN_SRC ipython :exports results :results drawer :session s
+     import itertools
+     import numpy as np
+     import matplotlib.pyplot as plt
+     from scipy.stats import expon
+     plt.style.use('seaborn')
+     lambdas = [.1, 1, 5, 10]
+     xmin, xmax = 0, 1
+     x = np.linspace(xmin, xmax, 1000)
+     ax = get_axis('Exponential')
+     for l, col in zip(lambdas, colors):
+	 y = expon.pdf(x, scale=1/l)
+	 ax.plot(x, y, color=col, label=f'$\lambda={l}$')
+	 ax.fill_between(x, y, 0, color=col, alpha=.15)
+
+     plt.xlim(xmin, xmax)
+     plt.ylim(0, 5)
+     plt.legend()
+     print(ax)
+   #+END_SRC
+
+** Gamma
+   The Gamma distribution generalises the [[exp][Exponential distribution]]
+   \(Exp(\lambda) \sim Gamma(1, \frac{1}{\lambda})\) and is a
+   conjugate prior for it. Consequently, it only has support for the
+   positive reals, just as the Exponential distribution. It's PDF is
+   given by \( p(x \vert \alpha, \beta) =
+   \frac{\beta^\alpha}{\Gamma(\alpha)} x^{\alpha - 1} e^{-\beta x} \)
+   which gives the likelihood function
+
+   \[ 
+   \mathcal{L}(\alpha, \beta \vert x_{1:n}) 
+   = \prod_{i=1}^{n} \frac{\beta^{\alpha}}{\Gamma(\alpha)} x_i^{\alpha - 1} e^{-\beta x_i}
+   = \frac{\beta^{n \alpha}}{\Gamma(\alpha)^{n}} \prod_{i=1}^{n} x_i^{\alpha - 1} e^{-\beta x_i},
+   \]
+
+   and the log likelihood 
+   \begin{split}
+   \log \mathcal{L}(\alpha, \beta \vert x_{1:n})
+   = & \log \left( \frac{\beta^{n \alpha}}{\Gamma(\alpha)^{n}} \prod_{i=1}^{n} x_i^{\alpha - 1} e^{-\beta x_i} \right) \\
+   = & \sum_{i=1}^{n} \log \left[ x_i^{\alpha - 1} e^{-\beta x_i}
+   \right] + n \alpha \log \beta - n \log \Gamma(\alpha) \\
+   = & \sum_{i=1}^{n} \left[ (\alpha - 1) \log x_i - \beta x_i \right] + n \alpha \log \beta - n \log \Gamma(\alpha) \\
+   = & (\alpha - 1) \sum_{i=1}^{n} \log x_i - \beta \sum_{i=1}^{n} x_i  + n \alpha \log \beta - n \log \Gamma(\alpha) \\
+   \end{split}
+
+** Normal
+   The Normal, or Gaussian, distribution is one of the most commonly 
+   used. Two of the reasons for it's popularity is that it is closed
+   under addition and multiplications, and the [[https://en.wikipedia.org/wiki/Central_limit_theorem][Central Limit Theorem]].
+   These results makes it very easy to justify using it to model a lot
+   of different continuous data.
+
+   #+NAME: plot_univariate_normal
+   #+BEGIN_SRC ipython :exports results :results drawer :session s
+     import numpy as np
+     import matplotlib.pyplot as plt
+     from scipy.stats import norm
+     plt.style.use('seaborn')
+     mus = [0, 1, -2, 5]
+     sigma2s = [1, 2, 5, .5]
+     xmin, xmax = -3, 7
+     x = np.linspace(xmin, xmax, 1000)
+     ax = get_axis('univariate Normal')
+     for mu, sigma2, col in zip(mus, sigma2s, colors):
+	 y = norm.pdf(x, mu, np.sqrt(sigma2))
+	 ax.plot(x, y, color=col, label=f'$\mu={mu}, \sigma^2={sigma2}$')
+	 ax.fill_between(x, y, 0, color=col, alpha=.15)
+
+     plt.xlim(xmin, xmax)
+     plt.ylim(0, 1)
+     plt.legend()
+     print(ax)
+   #+END_SRC
+
+   A normally distributed univariate variable is denoted \(x \sim \mathcal{N}(\mu, \sigma^2) \)
+   where \(\mu\) denotes the mean, and \(\sigma^2\) the variance. A
+   very useful property of the univariate Normal distribution is that the \(95\%\)
+   credible interval is given by \(\mu \pm 2\sigma\). However, it is very
+   common to use a multivarite Normal distribution to model data with
+   \(k > 1\)dimensions. In those cases the distributions is denoted \( x
+   \sim \mathcal{N}(\mathbf{\mu}, \mathbf{\Sigma}) \) where \(\mu \) is a
+   \(k \times 1\)-dimensional vector and \(\Sigma\) is a \(k \times k\)
+   positive semi-definite covariance matrix.
+   The PDF is given by 
+   \[ 
+   p(x \vert \mu, \Sigma)
+   = (2\pi)^{-\frac{k}{2}}\det{(\Sigma)}^{-\frac{1}{2}} 
+   \exp{\left( -\frac{1}{2}(x - \mu)^{T}\Sigma^{-1}(x - \mu) \right)},
+   \]
+   which gives the likelihood
+   \begin{split}
+   \mathcal{L}(\mu, \Sigma \vert x_{1:n})
+   = & \prod_{1=1}^{n} (2\pi)^{-\frac{k}{2}}\det{(\Sigma)}^{-\frac{1}{2}}
+   \exp{\left( -\frac{1}{2}(x_i - \mu)^{T}\Sigma^{-1}(x_i - \mu)
+   \right)} \\
+   = & (2\pi)^{-\frac{nk}{2}} \det{(\Sigma)}^{-\frac{n}{2}}
+   \exp{\left( -\frac{1}{2} \sum_{i=1}^{n} \left[ (x_i - \mu)^{T}\Sigma^{-1}(x_i - \mu) \right] \right)},
+   \end{split}
+   and log likelihood
+   \begin{split}
+   \log \mathcal{L}(\mu, \Sigma \vert x_{1:n})
+   = & \log \left[ (2\pi)^{-\frac{nk}{2}} \det{(\Sigma)}^{-\frac{n}{2}}
+   \exp{\left( -\frac{1}{2} \sum_{i=1}^{n} (x_i -
+   \mu)^{T}\Sigma^{-1}(x_i - \mu) \right)} \right] \\
+   = & - \frac{n k \log(2\pi)}{2} - \frac{n \log \det{(\Sigma)}}{2} 
+   - \frac{1}{2} \sum_{i=1}^{n} (x_i - \mu)^{T}\Sigma^{-1}(x_i - \mu).
+   \end{split}
+
+   Computing this requires inverting \(\Sigma\) which has time
+   complexity \(\mathcal{O}(n^3)\). While this can be reduced to
+   \(\mathcal{O}(n^2)\) using Cholesky decomposition, it can still be
+   prohibitively slow. To bring complexity down further it can
+   sometime be useful to approximate
+   \(\Sigma\) as a diagonal matrix, ignoring cross-covariance and simplifying
+   \(\det{\Sigma} \approx \prod_{i=1}^{k} \Sigma_{i, i} \), which can
+   be computed in \(\mathcal{O}(n)\). The Normal distribution is
+   conjugate prior for another Normal distribution with unknown mean.
+   
+   #+NAME: plot_multivariate_normal
+   #+BEGIN_SRC ipython :exports results :results drawer :session s
+     import numpy as np
+     import matplotlib.pyplot as plt
+
+     # Fixing random state for reproducibility
+     np.random.seed(0)
+
+     # the random data
+     x = np.random.randn(1000) + 2
+     y = np.random.randn(1000) + .5
+
+     x1 = np.random.randn(1000) - 1
+     y1 = np.random.randn(1000) - 1
+
+     # definitions for the axes
+     left, width = 0.1, 0.65
+     bottom, height = 0.1, 0.65
+     spacing = 0.005
+
+     rect_scatter = [left, bottom, width, height]
+     rect_histx = [left, bottom + height + spacing, width, 0.2]
+     rect_histy = [left + width + spacing, bottom, 0.2, height]
+
+     # start with a rectangular Figure
+     plt.figure(figsize=(8, 8))
+
+     ax_scatter = plt.axes(rect_scatter)
+     ax_scatter.tick_params(direction='in', top=True, right=True)
+     ax_histx = plt.axes(rect_histx)
+     ax_histx.tick_params(direction='in', labelbottom=False)
+     ax_histy = plt.axes(rect_histy)
+     ax_histy.tick_params(direction='in', labelleft=False)
+
+     # the scatter plot:
+     ax_scatter.scatter(x, y)
+     ax_scatter.scatter(x1, y1)
+     ax_scatter.set_xlabel(r'$X$')
+     ax_scatter.set_ylabel(r'$Y$')
+
+     # now determine nice limits by hand:
+     binwidth = 0.25
+     lim = np.ceil(np.abs([x, y]).max() / binwidth) * binwidth
+     ax_scatter.set_xlim((-lim, lim))
+     ax_scatter.set_ylim((-lim, lim))
+
+     bins = np.arange(-lim, lim + binwidth, binwidth)
+     ax_histx.hist(x, bins=bins, alpha=.5)
+     ax_histy.hist(y, bins=bins, orientation='horizontal', alpha=.5)
+     ax_histx.hist(x1, bins=bins, alpha=.5)
+     ax_histy.hist(y1, bins=bins, orientation='horizontal', alpha=.5)
+
+     ax_histx.set_xlim(ax_scatter.get_xlim())
+     ax_histy.set_ylim(ax_scatter.get_ylim())
+     ax_histx.set_title('Example of multivariate Normal distribution')
+
+     plt.show()
+   #+END_SRC
+
+* Discrete
+  This section covers the most common discrete distributions.
+** Bernoulli 
+** Binomial
+   <<binomial>>
+
+** Multinoulli
+** Multinomial
+** Poisson
+** Poisson Process
+** Geometric
+
+* Misc
+  There are distributions which do not naturally fall into the
+  categories of continuous or discrete observations, so they have
+  their own section.
+** Wishart
+** Von-Mises
+** Gaussian Process
+
+* Conjugate Priors
