@@ -1,0 +1,164 @@
+#+BEGIN_SRC ipython :session s
+  import numpy as np
+  import pandas as pd
+
+  import data
+  from sklearn.preprocessing import StandardScaler
+  import theano
+  np.random.seed(1)
+  train, test = data.load_train_and_test(frac_test=.2)
+  train_x, train_y = train
+
+
+  real_valued_covariates = [
+      'age', 'trestbps', 'chol',
+      'thalach', 'oldpeak'
+  ]
+
+  def new_scaler(cov): 
+      scaler = StandardScaler()
+      scaler.fit(train_x[cov].values.reshape(-1, 1))
+      return scaler
+
+  scalers = {
+      cov: new_scaler(cov)
+      for cov in real_valued_covariates
+  }
+  # Normalise 
+  rvcs = pd.DataFrame(np.hstack([
+      scaler.transform(train_x[cov].values.reshape(-1, 1))
+      for scaler, cov in zip(scalers.values(), real_valued_covariates)
+  ]), columns=real_valued_covariates)
+#+END_SRC
+
+
+#+RESULTS:
+: # Out[1]:
+
+Plot correlations
+
+#+BEGIN_SRC ipython :exports results: :results drawer :session s
+    from util import plot_correlations
+    import pandas as pd
+    data = pd.concat((train_x, train_y), axis=1).head()
+    plot_correlations(data)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[29]:
+[[file:./obipy-resources/q1hRH0.png]]
+:END:
+
+#+BEGIN_SRC ipython :session s :async
+  import numpy as np
+  import pymc3 as pm
+  import theano
+  import theano.tensor as T
+  x_ = rvcs.values
+  n_features = x_.shape[1]
+  sex_ixs = train_x.sex.values
+
+  X = theano.shared(x_)
+  y = theano.shared(train_y.values)
+
+  with pm.Model() as heart_model:
+    #mu_alpha = pm.Normal('mu_alpha', mu=0, sd=10)
+    #sigma_alpha = pm.HalfNormal('sigma_alpha', sd=10)
+    #mu_beta = pm.Normal('mu_beta', mu=0, sd=10)
+    #sigma_beta = pm.HalfNormal('sigma_beta', sd=10)
+
+    alpha = pm.Normal('sex_alpha', 
+		      mu=0, sd=10, shape=len(sex_ixs))
+    beta = pm.Normal('sex_beta', 
+		     mu=0, sd=10, shape=(len(sex_ixs), n_features))
+
+    z = alpha[sex_ixs] + pm.math.dot(X, beta[sex_ixs].T)
+    p = pm.math.sigmoid(z) # Bernoulli inverse link function
+    heart = pm.Bernoulli('heart', p=p, observed=y)
+
+    trace = pm.sample(8000, tune=1000)
+#+END_SRC
+
+#+RESULTS:
+: # Out[40]:
+
+#+BEGIN_SRC ipython :exports results :results drawer  :session s
+  pm.traceplot(trace)
+#+END_SRC
+
+#+RESULTS:
+:RESULTS:
+# Out[41]:
+#+BEGIN_EXAMPLE
+  array([[<matplotlib.axes._subplots.AxesSubplot object at 0x00000181903D6A90>,
+  <matplotlib.axes._subplots.AxesSubplot object at 0x00000181958F87B8>],
+  [<matplotlib.axes._subplots.AxesSubplot object at 0x0000018192C52EF0>,
+  <matplotlib.axes._subplots.AxesSubplot object at 0x00000181942B4BA8>],
+  [<matplotlib.axes._subplots.AxesSubplot object at 0x000001818FFA4828>,
+  <matplotlib.axes._subplots.AxesSubplot object at 0x0000018191B74668>]],
+  dtype=object)
+#+END_EXAMPLE
+[[file:./obipy-resources/kXCJS9.png]]
+:END:
+#+BEGIN_SRC ipython :session s
+  pm.summary(trace)
+#+END_SRC
+
+#+RESULTS:
+#+begin_example
+# Out[42]:
+,#+BEGIN_EXAMPLE
+            mean         sd  mc_error    hpd_2.5   hpd_97.5         n_eff  \
+  alpha__0_0  0.184877   0.156210  0.000887  -0.128144   0.484955  29946.104950
+  alpha__1_0 -0.078319  10.080253  0.059785 -20.169475  19.311532  28871.563809
+  beta__0_0  -0.051243   0.167597  0.001001  -0.388987   0.269494  25876.019975
+  beta__0_1  -0.246933   0.158005  0.000901  -0.562487   0.054456  33240.996141
+  beta__0_2  -0.097499   0.148254  0.000868  -0.406328   0.179735  28836.957243
+  beta__0_3   0.737892   0.184615  0.001161   0.383869   1.105119  24586.986413
+  beta__0_4  -0.844065   0.187843  0.001096  -1.212758  -0.477700  29920.531490
+  beta__1_0   0.005503   1.399517  0.011259  -3.064638   2.871423  15363.564072
+  beta__1_1  -0.008048   1.425121  0.009929  -3.042769   3.024416  20138.184822
+  beta__1_2   0.011453   1.443303  0.009965  -3.027432   3.046475  18015.432320
+  beta__1_3  -0.005688   1.421456  0.009378  -3.075611   2.996166  19434.582688
+  beta__1_4  -0.008019   1.407428  0.009347  -2.919120   3.042957  24470.941081
+  sex         0.000000   0.000000  0.000000   0.000000   0.000000           NaN
+  
+  Rhat
+  alpha__0_0  1.000011
+  alpha__1_0  1.000018
+  beta__0_0   0.999950
+  beta__0_1   1.000055
+  beta__0_2   0.999962
+  beta__0_3   0.999948
+  beta__0_4   0.999967
+  beta__1_0   0.999982
+  beta__1_1   0.999995
+  beta__1_2   1.000002
+  beta__1_3   1.000132
+  beta__1_4   0.999997
+  sex              NaN
+,#+END_EXAMPLE
+#+end_example
+
+
+#+BEGIN_SRC ipython :session s
+  n_samples = 1000
+  ppc = pm.sample_posterior_predictive(trace, samples=n_samples, model=heart_model)
+  pred = ppc['heart'].mean(axis=0) > .5
+  (pred == train_y).mean()
+#+END_SRC
+
+#+RESULTS:
+: # Out[39]:
+: : 0.7066115702479339
+
+
+#+BEGIN_SRC ipython :session s :exports results :results drawer
+  import matplotlib.pyplot as plt
+  _, ax = plt.subplots(figsize=(12, 6))
+  p = ppc['heart'].mean(axis=0)
+  ax.hist(p, bins=20)
+  ax.set(title='Posterior predictive of the mean', xlabel='mean(x)', ylabel='Frequency');
+#+END_SRC
+
