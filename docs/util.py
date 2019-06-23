@@ -8,4 +8,5 @@ def get_axis(name: str):
     ax.set_title(f'Example of {name} distribution')
     return ax
 
-colors = ['saddlebrown', 'steelblue', 'seagreen', 'turquoise', 'darkkhaki', 'firebrick']
+colors = ["#348ABD", "#A60628", "#7A68A6", "#467821", "#CF4457"]
+#['saddlebrown', 'steelblue', 'seagreen', 'turquoise', 'darkkhaki', 'firebrick']
